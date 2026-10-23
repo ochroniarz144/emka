@@ -31,19 +31,181 @@
 
 <div class="upload">
     <p class="error" hidden>To pole jest wymagane</p>
-
     <img class="upload_uploaded" alt="" hidden>
-
     <div class="upload_uploading" hidden></div>
-
     <div class="upload_grid">
         <img class="upload_image" src="https://i.imgur.com/1lerane.png" alt="">
         <p class="upload_text">Dodaj zdjęcie</p>
     </div>
-
-    <input type="file" class="classic_input image-upload" accept="image/*">
+    <input type="file" class="classic_input image-upload" accept="image/*" hidden>
 </div>
 
+<style>
+.upload {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    background: #fafafa;
+    transition: border-color 0.2s;
+}
+
+.upload:hover {
+    border-color: #999;
+}
+
+.upload_grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.upload_image {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.upload_text {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.upload_uploaded {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Spinner – kółko */
+.upload_uploading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.upload_uploading::after {
+    content: "";
+    width: 36px;
+    height: 36px;
+    border: 3px solid #ddd;
+    border-top-color: #3498db;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Przycisk usuwania */
+.upload_remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    z-index: 2;
+}
+
+.upload.has-image .upload_remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
+<script>
+document.querySelectorAll('.upload').forEach(upload => {
+    const input     = upload.querySelector('.image-upload');
+    const grid      = upload.querySelector('.upload_grid');
+    const uploaded  = upload.querySelector('.upload_uploaded');
+    const uploading = upload.querySelector('.upload_uploading');
+    const error     = upload.querySelector('.error');
+
+    // Kliknięcie w cały obszar otwiera wybór pliku
+    upload.addEventListener('click', (e) => {
+        if (e.target.classList.contains('upload_remove')) return;
+        input.click();
+    });
+
+    input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) return;
+
+        // Pokaż spinner, ukryj resztę
+        grid.hidden = true;
+        uploaded.hidden = true;
+        error.hidden = true;
+        uploading.hidden = false;
+        upload.classList.remove('has-image');
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            // Po wczytaniu – ukryj spinner i pokaż obrazek
+            uploaded.src = e.target.result;
+            uploaded.hidden = false;
+            uploading.hidden = true;
+            upload.classList.add('has-image');
+        };
+
+        reader.onerror = () => {
+            uploading.hidden = true;
+            grid.hidden = false;
+            error.hidden = false;
+            error.textContent = 'Błąd wczytywania pliku';
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    // Przycisk usuwania zdjęcia
+    let removeBtn = upload.querySelector('.upload_remove');
+    if (!removeBtn) {
+        removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'upload_remove';
+        removeBtn.innerHTML = '×';
+        removeBtn.title = 'Usuń zdjęcie';
+        upload.appendChild(removeBtn);
+    }
+
+    removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        input.value = '';
+        uploaded.src = '';
+        uploaded.hidden = true;
+        uploading.hidden = true;
+        grid.hidden = false;
+        upload.classList.remove('has-image');
+        error.hidden = true;
+    });
+});
+</script>
     <div class="input_holder">
         <input type="text" id="name" class="input" placeholder="">
         <span class="placeholder">Imię (imiona)</span>
