@@ -29,53 +29,20 @@
         </div>
     </div>
 
-<script>
-document.querySelectorAll('.upload').forEach((upload) => {
-    const input = upload.querySelector('.image-upload');
-    const loader = upload.querySelector('.upload_uploading');
-    const preview = upload.querySelector('.upload_uploaded');
-    const grid = upload.querySelector('.upload_grid');
-    const error = upload.querySelector('.error');
+<div class="upload">
+    <p class="error" hidden>To pole jest wymagane</p>
 
-    input.addEventListener('change', () => {
-        const file = input.files[0];
-        if (!file) return;
+    <img class="upload_uploaded" alt="" hidden>
 
-        if (!file.type.startsWith('image/')) {
-            error.hidden = false;
-            return;
-        }
+    <div class="upload_uploading" hidden></div>
 
-        error.hidden = true;
-        loader.hidden = false;
-        preview.hidden = true;
+    <div class="upload_grid">
+        <img class="upload_image" src="https://i.imgur.com/1lerane.png" alt="">
+        <p class="upload_text">Dodaj zdjęcie</p>
+    </div>
 
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            preview.onload = () => {
-                loader.hidden = true;
-                preview.hidden = false;
-                grid.hidden = true;
-            };
-
-            preview.onerror = () => {
-                loader.hidden = true;
-                error.hidden = false;
-            };
-
-            preview.src = reader.result;
-        };
-
-        reader.onerror = () => {
-            loader.hidden = true;
-            error.hidden = false;
-        };
-
-        reader.readAsDataURL(file);
-    });
-});
-</script>
+    <input type="file" class="classic_input image-upload" accept="image/*">
+</div>
 
     <div class="input_holder">
         <input type="text" id="name" class="input" placeholder="">
